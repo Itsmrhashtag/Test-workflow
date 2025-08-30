@@ -9,17 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      # 3. Install deps & build
       - name: Install and Build
         run: |
           rm -rf node_modules package-lock.json
@@ -27,17 +24,15 @@ jobs:
           chmod +x node_modules/.bin/react-scripts
           CI=false npm run build
 
-      # 4. Upload ONLY contents of build/ (not the folder itself)
       - name: Upload Build Files
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/*"          # ✅ Only inner files, no build/ folder
+          source: "build/**"        
           target: "~/react-app-temp"
 
-      # 5. Deploy into Nginx webroot
       - name: Deploy to Nginx Directory
         uses: appleboy/ssh-action@v0.1.7
         with:
